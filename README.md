@@ -1,5 +1,5 @@
 # RxBus
-RxBus using Relay using Jake Wharton's RxRelay
+RxBus Relay using Jake Wharton's RxRelay
 
 # Download
 ```maven
