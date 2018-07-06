@@ -1,0 +1,112 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.8.1'
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+apply plugin: 'java-library'
+apply plugin: 'com.novoda.bintray-release'
+
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+}
+ext {
+    ARTIFACT_ID = 'rxbus'
+    VERSION_NAME = '1.0'
+    VERSION_CODE = 1 //your version
+
+    GIT_URL = 'https://github.com/adilxiqbal/RxBus'
+    GROUP_NAME = 'com.adiliqbal'
+
+    MODULE_NAME = 'RxBus'
+
+    DEVELOPER_ID = 'adiliqbal'
+    DEVELOPER_NAME = 'Adil Iqbal'
+
+    IS_UPLOADING = project.getGradle().startParameter.taskNames.any{it.contains('bintrayUpload')}
+}
+
+subprojects {
+    group = GROUP_NAME
+    version = VERSION
+
+    if (IS_UPLOADING && project.name in [MODULE_NAME]) {
+        println project.name
+        apply plugin: 'maven'
+
+        gradle.taskGraph.whenReady { taskGraph ->
+            taskGraph.getAllTasks().find {
+                it.path == ":$project.name:generatePomFileForMavenPublication"
+            }.doLast {
+                file("build/publications/maven/pom-default.xml").delete()
+                println 'Overriding pom-file to make sure we can sync to maven central!'
+                pom {
+                    //noinspection GroovyAssignabilityCheck
+                    project {
+                        name "$project.name"
+                        artifactId ARTIFACT_ID
+                        packaging project.name == 'compiler' ? 'jar' : 'aar'
+                        description DESCRIPTION
+                        url SITE_URL
+                        version VERSION_NAME
+
+                        scm {
+                            url GIT_URL
+                            connection GIT_URL
+                            developerConnection GIT_URL
+                        }
+
+                        licenses {
+                            license {
+                                name LICENSE
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id DEVELOPER_ID
+                                name DEVELOPER_NAME
+                                email DEVELOPER_EMAIL
+                            }
+                        }
+                    }
+                }.writeTo("build/publications/maven/pom-default.xml")
+            }
+        }
+    }
+}
+
+publish {
+    userOrg = 'adiliqbal'
+    groupId = 'com.adiliqbal'
+    artifactId = 'rxbus'
+    publishVersion = '0.1'
+    desc = 'Event bus'
+    website = 'https://github.com/adilxiqbal/RxBus'
+}
