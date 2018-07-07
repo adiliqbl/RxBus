@@ -58,4 +58,5 @@ RxBus.unregister(this)
 4. Post events
 ```kotlin
 RxBus.post(new MyEvent())
+RxBus.postSticky(new MyEvent())
 ```
