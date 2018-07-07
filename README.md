@@ -7,22 +7,6 @@ The Bus makes use of PublishRelay provided by [RxRelay](https://github.com/JakeW
 [RxRelay](https://github.com/JakeWharton/RxRelay)
 
 
-
-# Download
-Add gradle dependency:
-```gradle
-implementation 'com.adiliqbal:rxbus:0.2'
-```
-or maven:
-```maven
-<dependency>
-  <groupId>com.adiliqbal</groupId>
-  <artifactId>rxbus</artifactId>
-  <version>0.2</version>
-  <type>pom</type>
-</dependency>  
-```
-
 # Usage
 
 Register to all events in class
