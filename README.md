@@ -31,7 +31,7 @@ RxBus.observe(ConsumerEvent.class)
 ```
 Event will be received on both sticky and non sticky events. 
 
-**or**
+**or** <br>
 Register to all events in class
 
 1. Event class
@@ -45,7 +45,7 @@ class ConsumerEvent
 fun consumeEvent(event : ConsumerEvent) {}
 ```
 
-3. Consuming events via observerables. Once any class registers, all of its methods with @Consume are used to invoke event when onNext() of Relay is called.
+3. Consuming events via observerables. Once any class registers, all of its methods with @Consume are used to invoke event when onNext() of Relay is called.<br>
 to register
 ```kotlin
 RxBus.register(this)
