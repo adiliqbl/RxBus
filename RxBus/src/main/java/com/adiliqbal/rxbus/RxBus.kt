@@ -2,13 +2,11 @@ package com.adiliqbal.rxbus
 
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * RxBus similar to <p> <a src="https://github.com/greenrobot/EventBus" > </p>
- * using <p> <a src="https://github.com/JakeWharton/RxRelay" > </p>
+ * RxBus similar to <p> <a href="https://github.com/greenrobot/EventBus" > </p>
+ * using <p> <a href="https://github.com/JakeWharton/RxRelay" > </p>
  *
  * Objects need to call {@see register()} to start listening for events and {@see unregister()}
  * to unregister from RxBus.
@@ -18,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object RxBus {
     private var events: ConcurrentHashMap<Class<Any>, Any> = ConcurrentHashMap()
-    private var SUBSCRIBERS_CACHE: ConcurrentHashMap<Class<Any>, Subscriber> = ConcurrentHashMap()
-
     private val bus = PublishRelay.create<Any>()
 
 
@@ -67,7 +63,7 @@ object RxBus {
     }
 
     fun <E> observe(type: Class<E>): Observable<E> {
-        return Observable.merge(observable(type), stickyObservable(type))
+        return Observable.merge(observable(type), observerSticky(type))
     }
 
     /**
@@ -87,50 +83,11 @@ object RxBus {
      * @param type
      * @return
      */
-    private fun <E> stickyObservable(type: Class<E>): Observable<E> {
+    private fun <E> observerSticky(type: Class<E>): Observable<E> {
         return Observable.just(Optional.of(events[type as Class<Any>]))
                 .flatMap { z ->
                     if (z.isPresent) Observable.just(z.get()) as Observable<E>
                     else Observable.empty()
                 }
-    }
-
-    /**
-     * Finds all methods annotated with {@see Consumer.class} and then creates new {@see Observer}
-     * from Bus which invoke methods on events
-     *
-     * @param listener
-     *          Class object
-     */
-    fun register(listener: Any) {
-        val consumers: List<Method> = AnnotationProcessor.getConsumerMethods(listener)
-        val disposables = CompositeDisposable()
-
-        val subscriber = Subscriber(listener)
-        subscriber.registered = true
-
-        synchronized(this) {
-            for (method: Method in consumers) {
-                disposables.add(observe(method.parameterTypes[0])
-                        .subscribe { result ->
-                            if (subscriber.registered)
-                                method.invoke(subscriber.subscriber, result)
-                        })
-            }
-        }
-
-        subscriber.compositeDisposable = disposables
-        SUBSCRIBERS_CACHE[listener.javaClass] = subscriber
-    }
-
-    fun unregister(listener: Any) {
-        val clazz = listener.javaClass
-        val subscriber: Subscriber? = SUBSCRIBERS_CACHE[clazz]
-        if (subscriber != null) {
-            subscriber.subscriber = null
-            subscriber.compositeDisposable.dispose()
-            subscriber.registered = false
-        }
-        SUBSCRIBERS_CACHE.remove(clazz)
     }
 }
