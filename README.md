@@ -1,5 +1,5 @@
 # RxBus
-Simple **Relay RxBus** with similar api to [Event Bus](https://github.com/greenrobot/EventBus) without threads. <br>
+Simple **Relay RxBus** with similar api to [Event Bus](https://github.com/greenrobot/EventBus) <br>
 The Bus makes use of PublishRelay provided by [RxRelay](https://github.com/JakeWharton/RxRelay).
 
 #### Thanks to
